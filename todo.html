@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="fi">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Tehtävälista — munxha</title>
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    .todo-app{max-width:720px;margin:2rem auto}
+    .todo-input{display:flex;gap:.5rem}
+    .todo-input input{flex:1;padding:.6rem;border-radius:8px;border:1px solid rgba(0,0,0,0.06)}
+    .tasks{margin-top:1rem;list-style:none;padding:0}
+    .counters{margin-bottom:.6rem;color:var(--text);font-weight:600}
+    .task{display:flex;align-items:center;justify-content:space-between;padding:.6rem;border-radius:8px;background:linear-gradient(180deg,#fff,#f8fafc);border:1px solid rgba(0,0,0,0.04);margin-bottom:.5rem}
+    .task .meta{display:flex;align-items:center;gap:.75rem}
+    .task.done .label{text-decoration:line-through;color:var(--muted)}
+    .task button{background:transparent;border:0;cursor:pointer}
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <div class="container header-inner">
+      <a class="logo" href="index.html">munxha</a>
+      <nav class="site-nav">
+        <a href="index.html">Home</a>
+        <a href="calculator.html">Calculator</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <section class="section">
+      <div class="container todo-app">
+        <h2>Tehtävälista</h2>
+        <p>Lisää tehtävä, merkitse valmiiksi tai poista. Tehtävät tallentuvat selaimeesi.</p>
+        <div class="counters">Tehtävät: <strong id="total-count">0</strong> — Valmiit: <strong id="done-count">0</strong> — Keskeneräiset: <strong id="todo-count">0</strong></div>
+        <div class="todo-input">
+          <input id="task-input" placeholder="Kirjoita uusi tehtävä..." aria-label="Uusi tehtävä">
+          <button id="add-btn" class="btn">Lisää</button>
+        </div>
+        <ul id="tasks" class="tasks"></ul>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">© <span id="year"></span> munxha — Email: <a href="mailto:muha48755@gmail.com">muha48755@gmail.com</a></div>
+  </footer>
+
+<script>
+(function(){
+  const input = document.getElementById('task-input');
+  const addBtn = document.getElementById('add-btn');
+  const list = document.getElementById('tasks');
+  const KEY = 'munxha_todo_v1';
+
+  function save(tasks){ localStorage.setItem(KEY, JSON.stringify(tasks)); }
+  function load(){ try{ return JSON.parse(localStorage.getItem(KEY)) || []; }catch(e){ return []; } }
+
+  function render(){
+    const tasks = load();
+    list.innerHTML = '';
+    tasks.forEach((t, i)=>{
+      const li = document.createElement('li'); li.className = 'task' + (t.done? ' done':'');
+      const meta = document.createElement('div'); meta.className='meta';
+      const label = document.createElement('div'); label.className='label'; label.textContent = t.text;
+      const controls = document.createElement('div');
+
+      const doneBtn = document.createElement('button'); doneBtn.innerHTML = t.done? '↺':'✓'; doneBtn.title = 'Toggle done';
+      doneBtn.addEventListener('click', ()=>{ toggleDone(i); });
+
+      const delBtn = document.createElement('button'); delBtn.innerHTML = '🗑'; delBtn.title='Poista';
+      delBtn.addEventListener('click', ()=>{ removeTask(i); });
+
+      meta.appendChild(label);
+      controls.appendChild(doneBtn);
+      controls.appendChild(delBtn);
+      li.appendChild(meta);
+      li.appendChild(controls);
+      list.appendChild(li);
+    });
+    // update counters
+    const total = tasks.length;
+    const done = tasks.filter(t=>t.done).length;
+    const todoCount = total - done;
+    const tEl = document.getElementById('total-count');
+    const dEl = document.getElementById('done-count');
+    const tdEl = document.getElementById('todo-count');
+    if(tEl) tEl.textContent = total;
+    if(dEl) dEl.textContent = done;
+    if(tdEl) tdEl.textContent = todoCount;
+  }
+
+  function addTask(text){ if(!text || !text.trim()) return; const tasks = load(); tasks.unshift({text:text.trim(), done:false}); save(tasks); render(); }
+  function toggleDone(i){ const tasks = load(); tasks[i].done = !tasks[i].done; save(tasks); render(); }
+  function removeTask(i){ const tasks = load(); tasks.splice(i,1); save(tasks); render(); }
+
+  addBtn.addEventListener('click', ()=>{ addTask(input.value); input.value=''; input.focus(); });
+  input.addEventListener('keydown', e=>{ if(e.key==='Enter'){ addTask(input.value); input.value=''; } });
+
+  // initial render
+  render();
+  // set year
+  const y = new Date().getFullYear(); document.getElementById('year').textContent = y;
+})();
+</script>
+</body>
+</html>

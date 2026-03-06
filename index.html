@@ -3,13 +3,13 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Simple Portfolio — Your Name</title>
+  <title>Simple Portfolio — munxha</title>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
   <header class="site-header">
     <div class="container header-inner">
-      <a class="logo" href="#">Your Name</a>
+      <a class="logo" href="#">munxha</a>
       <button id="nav-toggle" class="nav-toggle" aria-label="Toggle menu">☰</button>
       <nav id="site-nav" class="site-nav">
         <a href="#home">Home</a>
@@ -23,7 +23,11 @@
   <main>
     <section id="home" class="hero">
       <div class="container">
-        <h1>Hello — I'm Your Name</h1>
+        <h1 class="hero-title">Hello — I'm 
+          <span class="name-anim" aria-label="Munxha">
+            <span class="char">M</span><span class="char">u</span><span class="char">n</span><span class="char">x</span><span class="char">h</span><span class="char">a</span>
+          </span>
+        </h1>
         <p class="lead">I build small web apps, simple sites, and clean interfaces.</p>
         <p>
           <a class="btn" href="#projects">See projects</a>
@@ -34,29 +38,58 @@
 
     <section id="about" class="section">
       <div class="container">
-        <h2>About</h2>
-        <p>Short bio: mention your role, technologies you use, and what you enjoy building.</p>
+          <h2>Tietoja minusta</h2>
+          <p>Opiskelen IT:tä Careeriassa (Perämiehentie 6). Olen 1. vuosikurssin opiskelija. Harrastan jalkapalloa (futista) ja olen erittäin ahkera — tavoitteeni on tehdä tehtävät loppuun ja oppia uutta jatkuvasti.</p>
+      </div>
+    </section>
+
+    <section id="experience" class="section">
+      <div class="container">
+        <h2>Työkokemus</h2>
+        <p>Olen ollut kesätöissä palvelutalossa Toukovuori, jossa hoidin vanhuksia — autoin ruokinnassa, huolehdin henkilökohtaisesta avusta ja vein roskat. Työ oli sosiaalista ja vastuullista.</p>
+        <p>TET-jaksoni oli apteekissa Gammelbacka, missä työskentelin kassalla ja tein saldoja.</p>
+        <p>Olen ahkera ja motivoitunut opiskelija, oppimishaluinen ja valmis uusiin tehtäviin.</p>
+      </div>
+    </section>
+
+    <section id="skills" class="section">
+      <div class="container">
+        <h2>Osaamiset</h2>
+        <p>Osaamiseni (tärkeimmät ensin):</p>
+        <ul>
+          <li>C#</li>
+          <li>Visual Studio</li>
+          <li>HTML, CSS</li>
+          <li>Office-työkalut (Word, Excel)</li>
+          <li>Perustason JavaScript</li>
+        </ul>
       </div>
     </section>
 
     <section id="projects" class="section">
       <div class="container">
-        <h2>Projects</h2>
+        <h2>Projektit</h2>
+        <p>Tässä muutama projekti ja demo. Klikkaa "View" avataksesi projektin.</p>
         <div class="projects-grid">
           <article class="card">
-            <h3>Project One</h3>
-            <p>Short description. Tech: HTML, CSS, JS.</p>
-            <a class="link" href="#">View</a>
+            <h3>Portfolio Website</h3>
+            <p>Nykyinen portfoliosivusto — sisältää tietoja, osaamiset ja projektit.</p>
+            <p>Teknologiat: HTML, CSS, JavaScript</p>
+            <a class="link" href="index.html">View</a>
           </article>
+
           <article class="card">
-            <h3>Project Two</h3>
-            <p>Short description. Tech: React / Other.</p>
-            <a class="link" href="#">View</a>
+            <h3>Yksinkertainen laskin</h3>
+            <p>Peruslaskin, joka tukee yhteen-, vähennys-, kertolasku- ja jakolaskuja sekä desimaaleja.</p>
+            <p>Teknologiat: HTML, CSS, JavaScript</p>
+            <a class="link" href="calculator.html">View</a>
           </article>
+
           <article class="card">
-            <h3>Project Three</h3>
-            <p>Short description. Tech: API, backend.</p>
-            <a class="link" href="#">View</a>
+            <h3>Tehtävälista (To‑Do)</h3>
+            <p>Yksinkertainen tehtävienhallintasovellus: lisää, merkitse valmiiksi ja poista tehtäviä. Tallentuu selaimen localStorageen.</p>
+            <p>Teknologiat: HTML, CSS, JavaScript</p>
+            <a class="link" href="todo.html">View</a>
           </article>
         </div>
       </div>
@@ -64,14 +97,19 @@
 
     <section id="contact" class="section">
       <div class="container">
-        <h2>Contact</h2>
-        <p>Want to work together? Email me at <a href="mailto:you@example.com">you@example.com</a> or connect on <a href="https://github.com/">GitHub</a>.</p>
+        <h2>Yhteystiedot</h2>
+        <p>Voit laittaa tähän sähköpostin, LinkedIn-linkin, puhelinnumeron ja linkin CV:hen.</p>
+        <p>Puhelin: <a href="tel:+67328349">67328349</a></p>
+        <p>Sähköposti: <a href="mailto:muha48755@gmail.com">muha48755@gmail.com</a></p>
+        <p><a class="btn" href="mailto:muha48755@gmail.com">Lähetä sähköposti</a></p>
+        <p>GitHub: <a href="https://github.com/">GitHub</a></p>
+        <p>Julkaisuohjeet GitHub Pagesille: <a href="https://pages.github.com/" target="_blank" rel="noopener">pages.github.com</a></p>
       </div>
     </section>
   </main>
 
   <footer class="site-footer">
-    <div class="container">© <span id="year"></span> Your Name — Built with ❤️</div>
+    <div class="container">© <span id="year"></span> munxha — Built with ❤️</div>
   </footer>
 
   <script src="script.js"></script>

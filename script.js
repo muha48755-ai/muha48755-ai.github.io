@@ -21,4 +21,21 @@ document.addEventListener('DOMContentLoaded',function(){
       }
     });
   });
+
+  // Replay name animation on click
+  const nameEl = document.querySelector('.name-anim');
+  const replayName = ()=>{
+    if(!nameEl) return;
+    const chars = nameEl.querySelectorAll('.char');
+    chars.forEach((c, i)=>{
+      c.style.animation = 'none';
+      // force reflow
+      // eslint-disable-next-line no-unused-expressions
+      c.offsetHeight;
+      c.style.animation = `pop .7s cubic-bezier(.2,.9,.3,1) ${0.05 + i*0.07}s both`;
+    });
+  };
+  if(nameEl){
+    nameEl.addEventListener('click', replayName);
+  }
 });
