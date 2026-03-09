@@ -1,0 +1,255 @@
+<!doctype html>
+<html lang="fi">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Speedy Pizza — Menu</title>
+  <style>
+    /* Minimal, easy-to-read styles */
+    :root{--accent:#ff6b3d;--muted:#6b6b6b;--card:#fff}
+    *{box-sizing:border-box}
+    body{font-family:system-ui,Arial;background:#f6efe6;margin:0;color:#162125;padding-bottom:80px}
+    header{background:var(--accent);color:#fff;padding:14px 18px;position:sticky;top:0}
+    .wrap{max-width:1000px;margin:0 auto;display:flex;justify-content:space-between;align-items:center}
+    main{max-width:1000px;margin:18px auto;padding:0 16px}
+    .controls{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+    input,select,button{padding:8px 10px;border-radius:10px;border:1px solid rgba(0,0,0,0.08)}
+    .cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;margin-top:14px}
+    .card{background:var(--card);border-radius:10px;overflow:hidden;box-shadow:0 6px 18px rgba(0,0,0,0.06)}
+    .card img{width:100%;height:150px;object-fit:cover;display:block}
+    .card .info{padding:10px}
+    .meta{display:flex;justify-content:space-between;align-items:center;margin-top:8px}
+    .btn{background:var(--accent);color:#fff;border:none;padding:8px 10px;border-radius:999px;cursor:pointer}
+    .btn.alt{background:transparent;color:var(--accent);border:1px solid rgba(0,0,0,0.06)}
+    .cart-btn{position:fixed;right:18px;bottom:18px;background:#fff;padding:10px 14px;border-radius:999px;box-shadow:0 12px 30px rgba(0,0,0,0.12);cursor:pointer}
+    .sidecart{position:fixed;right:0;top:0;height:100vh;width:340px;background:#fff;box-shadow:-18px 0 40px rgba(0,0,0,0.12);transform:translateX(100%);transition:transform .24s}
+    .sidecart.open{transform:translateX(0)}
+    .sidecart header{padding:14px;border-bottom:1px solid #f3f3f3;display:flex;justify-content:space-between}
+    .items{padding:12px;overflow:auto;height:calc(100vh - 160px)}
+    .cart-item{display:flex;gap:8px;align-items:center;padding:8px 0;border-bottom:1px solid #f3f3f3}
+    .cart-item img{width:56px;height:56px;object-fit:cover;border-radius:8px}
+    .summary{padding:12px;border-top:1px solid #f3f3f3}
+    @media(min-width:900px){body{padding-bottom:40px}}
+  </style>
+</head>
+<body>
+  <header>
+    <div class="wrap">
+      <strong>Speedy Pizza</strong>
+      <nav style="display:flex;gap:12px;align-items:center">
+        <a href="#menu" style="color:#fff;text-decoration:none">Menu</a>
+        <a href="#contact" style="color:#fff;text-decoration:none">Yhteystiedot</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <h2 id="menu">Menu</h2>
+      <div class="controls">
+        <input id="search" placeholder="Hae...">
+        <select id="filter"><option value="all">Kaikki</option><option value="pizza">Pizzat</option><option value="vegetarian">Kasvis</option><option value="glutenfree">Gluteeniton</option><option value="drink">Juomat</option></select>
+        <button id="reset" class="btn alt">Tyhjennä</button>
+      </div>
+    </div>
+
+    <div class="cards" id="menu-items"></div>
+  </main>
+
+  <div class="cart-btn" id="open-cart">Ostoskori (<span id="count">0</span>)</div>
+
+  <aside class="sidecart" id="sidecart">
+    <header><strong>Ostoskori</strong><button id="close-cart">✕</button></header>
+    <div class="items" id="cart-items"></div>
+    <div class="summary"><div style="display:flex;justify-content:space-between"><span>Yhteensä</span><strong id="total">0,00 €</strong></div><div style="margin-top:8px"><button id="checkout" class="btn" style="width:100%">Kassalle</button></div></div>
+  </aside>
+
+  <footer style="text-align:center;padding:20px;color:#6b6b6b">© 2026 Speedy Pizza — Nopeat tilaukset</footer>
+
+  <script>
+    // Simple data: images use picsum.photos with seeds so they reliably load
+    const menu = [
+      // images seeded with descriptive keywords so they correlate with the product
+      {id:1,type:'pizza',name:'Margherita',desc:'Tomaattikastike, mozzarella, basilika',price:10.9,tag:'vegetarian',img:'https://uk.ooni.com/cdn/shop/articles/20220211142645-margherita-9920_e41233d5-dcec-461c-b07e-03245f031dfe.jpg?v=1737105431&width=1080'},
+      {id:2,type:'pizza',name:'Pepperoni',desc:'Runsaasti pepperonia',price:12.9,tag:'meat',img:'https://arecipeforfun.com/wp-content/uploads/2025/03/Edits-Turkey-Pepperoni-Pizza-Recipe-14.jpg'},
+      {id:3,type:'pizza',name:'Kasvispizza',desc:'Paprika, sieni, oliivit',price:12.4,tag:'vegetarian',img:'https://vegaanihaaste.fi/app/uploads/2021/11/Pizza_vaaka_0866.jpg'},
+      {id:4,type:'pizza',name:'Gluteeniton Kana',desc:'Gluteeniton pohja, BBQ-kana',price:13.9,tag:'glutenfree',img:'https://mlqhyfj3p1o0.i.optimole.com/cb:A3vv.6587a/w:700/h:467/q:mauto/f:best/ig:avif/https://lejos.fi/wp-content/uploads/2021/06/Kanapizza-vaaka.jpg'},
+      {id:5,type:'pizza',name:'Ananas & Pepperoni',desc:'Makeaa ja tulista',price:13.2,tag:'meat',img:'https://lookaside.fbsbx.com/lookaside/crawler/media/?media_id=9434669926567295'},
+      {id:6,type:'pizza',name:'Quattro Formaggi',desc:'Neljä erilaista juustoa',price:13.5,tag:'vegetarian',img:'http://nz.gozney.com/cdn/shop/articles/Four_Cheese_Pizza_Feng_Chen_-_Large1.jpg?v=1731561452'},
+      {id:7,type:'pizza',name:'BBQ Beef',desc:'BBQ-kastike ja naudanliha',price:14.2,tag:'meat',img:'https://i.redd.it/41x9uf45kg7z.jpg'},
+      {id:8,type:'drink',name:'Coca-Cola 0.33l',desc:'Kylmä virvoitusjuoma',price:2.5,tag:'drink',img:'https://public.keskofiles.com/f/k-ruoka/product/0NNH0/5449000085757'},
+      {id:9,type:'drink',name:'Fanta 0.33l',desc:'Appelsiini',price:2.5,tag:'drink',img:'https://96c1d9f0a0.clvaw-cdnwnd.com/d9b28554f36b8372d100b4cac45c6b75/200000238-c1115c1116/fanta.png?ph=96c1d9f0a0'},
+      {id:10,type:'drink',name:'Vichy 0.5l',desc:'Kivennäisvesi',price:2.0,tag:'drink',img:'https://ekylmala.eurotoimistotukut.fi/2635697-large_default/olvi-vichy-kivennaisvesi-0-5l-kmp.jpg'}
+    ];
+
+    // available extras for customization
+    const extrasList = ['Extra-juusto','Oliivit','Sienet','Sipuli','Chili'];
+    // map display extras to simple english keywords for better image seeding
+    const extrasSeedMap = {
+      'Extra-juusto': 'cheese',
+      'Oliivit': 'olives',
+      'Sienet': 'mushrooms',
+      'Sipuli': 'onion',
+      'Chili': 'chili'
+    };
+
+    function slugify(s){
+      return String(s||'').normalize('NFD').replace(/\p{Diacritic}/gu,'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/(^-|-$)/g,'');
+    }
+
+    // Simple cart
+    const cart = [];
+    const menuEl = document.getElementById('menu-items');
+    const search = document.getElementById('search');
+    const filter = document.getElementById('filter');
+    const reset = document.getElementById('reset');
+    const openCart = document.getElementById('open-cart');
+    const sidecart = document.getElementById('sidecart');
+    const cartItems = document.getElementById('cart-items');
+    const closeCart = document.getElementById('close-cart');
+    const countEl = document.getElementById('count');
+    const totalEl = document.getElementById('total');
+    const checkoutBtn = document.getElementById('checkout');
+
+    function renderList(){
+      const q = (search.value||'').toLowerCase();
+      const f = filter.value;
+      menuEl.innerHTML = '';
+      menu.filter(it=> (f==='all' || (f==='pizza' && it.type==='pizza') || it.tag===f || it.type===f) && (it.name.toLowerCase().includes(q)||it.desc.toLowerCase().includes(q)) )
+        .forEach(it=>{
+          const card = document.createElement('div'); card.className='card';
+          card.innerHTML = `<img src="${it.img}" alt="${it.name}"><div class="info"><strong>${it.name}</strong><div class="small">${it.desc}</div><div class="meta"><span>${it.price.toFixed(2)} €</span><div><button class='btn' data-custom='${it.id}'>Muokkaa</button> <button class='btn' data-add='${it.id}'>Lisää</button></div></div></div>`;
+          menuEl.appendChild(card);
+      });
+      // attach add listeners
+      document.querySelectorAll('[data-add]').forEach(b=>b.addEventListener('click',e=>{ const id = +e.currentTarget.dataset.add; addToCart(id, []); }));
+      document.querySelectorAll('[data-custom]').forEach(b=>b.addEventListener('click',e=>{ const id = +e.currentTarget.dataset.custom; openCustomize(id); }));
+    }
+
+    function getSeededImg(name, extras){
+      const parts = [slugify(name)];
+      if(extras && extras.length){
+        extras.forEach(ex => {
+          parts.push(extrasSeedMap[ex] || slugify(ex));
+        });
+      }
+      const seed = encodeURIComponent(parts.join('-'));
+      return `https://picsum.photos/seed/${seed}/800/600`;
+    }
+
+    function addToCart(id, extras=[]){
+      const p = menu.find(m=>m.id===id);
+      const key = id + (extras.length ? '|' + extras.join(',') : '');
+      const img = getSeededImg(p.name, extras);
+      let ex = cart.find(x=>x.key===key);
+      if(ex) ex.qty++; else cart.push({key,id,qty:1,name:p.name,price:p.price,img,extras});
+      renderCart();
+    }
+
+    function renderCart(){
+      cartItems.innerHTML=''; if(!cart.length){cartItems.innerHTML='<div style="padding:12px;color:var(--muted)">Ostoskori on tyhjä</div>'}
+      let total=0, count=0;
+      cart.forEach(item=>{
+        const extrasCost = item.extras ? (item.extras.length * 1.0) : 0;
+        total += (item.price + extrasCost) * item.qty; count+=item.qty;
+        const el = document.createElement('div'); el.className='cart-item';
+        el.innerHTML = `<img src="${item.img}"><div style="flex:1"><strong>${item.name}${item.extras && item.extras.length? ' — ' + item.extras.join(', '):''}</strong><div class='small'>${item.qty} × ${(item.price + (item.extras? item.extras.length * 1.0:0)).toFixed(2)} €</div></div><div style="display:flex;flex-direction:column;gap:6px"><button data-key="${item.key}" data-act="plus">+</button><button data-key="${item.key}" data-act="minus">−</button></div>`;
+        cartItems.appendChild(el);
+      });
+      countEl.textContent = count; totalEl.textContent = total.toFixed(2) + ' €';
+      // qty buttons
+      cartItems.querySelectorAll('button').forEach(b=>b.addEventListener('click',e=>{
+        const k = e.currentTarget.dataset.key; const a = e.currentTarget.dataset.act; const idx = cart.findIndex(x=>x.key===k); if(idx<0) return; if(a==='plus') cart[idx].qty++; else cart[idx].qty--; if(cart[idx].qty<=0) cart.splice(idx,1); renderCart();
+      }));
+    }
+
+    // customization modal (simple)
+    const customModalHtml = `
+      <div id="custom-modal" style="position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,0.4);z-index:80">
+        <div style="background:#fff;padding:12px;border-radius:10px;max-width:420px;width:100%">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><strong id="custom-title">Muokkaa</strong><button id="custom-cancel">✕</button></div>
+          <div id="custom-options"></div>
+          <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:8px"><button id="custom-add" class="btn">Lisää ostoskoriin</button></div>
+        </div>
+      </div>`;
+    document.body.insertAdjacentHTML('beforeend', customModalHtml);
+    const customModal = document.getElementById('custom-modal');
+    const customOptions = document.getElementById('custom-options');
+    const customTitle = document.getElementById('custom-title');
+    document.getElementById('custom-cancel').addEventListener('click',()=>customModal.style.display='none');
+
+    // checkout modal (collect customer details before confirming)
+    const checkoutModalHtml = `
+      <div id="checkout-modal" style="position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,0.4);z-index:90">
+        <div style="background:#fff;padding:12px;border-radius:10px;max-width:480px;width:100%">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><strong>Tilauksen tiedot</strong><button id="checkout-cancel">✕</button></div>
+          <form id="checkout-form">
+            <div style="display:flex;flex-direction:column;gap:8px">
+              <input id="cust-name" placeholder="Nimi" required>
+              <input id="cust-phone" placeholder="Puhelinnumero" required>
+              <input id="cust-address" placeholder="Toimitusosoite" required>
+              <input id="cust-email" placeholder="Sähköposti (valinnainen)" type="email">
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px">
+                <div>Yhteensä <strong id="checkout-total">0,00 €</strong></div>
+                <button type="submit" class="btn">Vahvista tilaus</button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>`;
+    document.body.insertAdjacentHTML('beforeend', checkoutModalHtml);
+    const checkoutModal = document.getElementById('checkout-modal');
+    const checkoutForm = document.getElementById('checkout-form');
+    document.getElementById('checkout-cancel').addEventListener('click',()=>checkoutModal.style.display='none');
+
+    function openCustomize(id){
+      const p = menu.find(m=>m.id===id);
+      customTitle.textContent = 'Muokkaa — ' + p.name;
+      customOptions.innerHTML = '';
+      extrasList.forEach((ex,i)=>{
+        const idc = 'ex'+i;
+        const row = document.createElement('label'); row.style.display='block'; row.style.marginBottom='6px';
+        row.innerHTML = `<input type="checkbox" value="${ex}" id="${idc}"> ${ex}`;
+        customOptions.appendChild(row);
+      });
+      customModal.style.display='flex';
+      document.getElementById('custom-add').onclick = ()=>{
+        const chosen = Array.from(customOptions.querySelectorAll('input:checked')).map(i=>i.value);
+        addToCart(id, chosen);
+        customModal.style.display='none';
+      }
+    }
+
+    // events
+    search.addEventListener('input',renderList); filter.addEventListener('change',renderList); reset.addEventListener('click',()=>{search.value='';filter.value='all';renderList()});
+    openCart.addEventListener('click',()=>sidecart.classList.add('open'));
+    closeCart.addEventListener('click',()=>sidecart.classList.remove('open'));
+    checkoutBtn.addEventListener('click',()=>{
+      if(!cart.length){ alert('Ostoskori on tyhjä'); return; }
+      // compute total for display in modal
+      const total = cart.reduce((sum,item)=>{
+        const extrasCost = item.extras ? (item.extras.length * 1.0) : 0;
+        return sum + (item.price + extrasCost) * item.qty;
+      },0);
+      document.getElementById('checkout-total').textContent = total.toFixed(2) + ' €';
+      checkoutModal.style.display = 'flex';
+    });
+
+    checkoutForm.addEventListener('submit',(e)=>{
+      e.preventDefault();
+      const name = document.getElementById('cust-name').value.trim();
+      const phone = document.getElementById('cust-phone').value.trim();
+      const address = document.getElementById('cust-address').value.trim();
+      if(!name || !phone || !address){ alert('Täytä nimi, puhelin ja osoite'); return; }
+      // finalize order
+      alert(`Kiitos tilauksesta, ${name}! Tilauksesi saapuu pian.`);
+      cart.length = 0; renderCart(); checkoutModal.style.display = 'none'; sidecart.classList.remove('open');
+      // reset form
+      checkoutForm.reset();
+    });
+
+    // init
+    renderList(); renderCart();
+  </script>
+</body>
+</html>
